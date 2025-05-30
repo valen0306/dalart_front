@@ -1,0 +1,32 @@
+.first {
+    display: flex;
+    align-items: center;
+}
+
+.footer {
+    position: fixed;
+    /* ヘッダーを固定 */
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #859A93;
+    color: #FFFCF7;
+    z-index: 1000;
+    /* 他の要素よりも前に表示 */
+    display: flex;
+    align-items: center;
+    align-content: center;
+    height: 4rem;
+    justify-content: center;
+}
+
+.homeaikon {
+    position: fixed;
+    left: 20px;
+}
+
+.aikon {
+    position: fixed;
+    right: 20px;
+}
+
