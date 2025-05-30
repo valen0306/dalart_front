@@ -1,0 +1,20 @@
+{
+  "name": "DaLert-app",
+  "short_name": "DaLert",
+  "start_url": "/",
+  "display": "fullscreen",
+  "background_color": "#859A93",
+  "theme_color": "#859A93",
+  "icons": [
+    {
+      "src": "/icon512_maskable.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon512_rounded.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
