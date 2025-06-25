@@ -6,7 +6,7 @@ import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import HomeIcon from '@mui/icons-material/Home';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { usePathname, useRouter } from 'next/navigation'; 
+import { usePathname, useRouter } from 'next/navigation';
 
 const navItems = [
   { href: '/', icon: <HomeIcon /> },
@@ -18,7 +18,7 @@ export default function BottomNavigationBar() {
   const router = useRouter(); // ナビゲーションのためにrouterを使用
   const pathname = usePathname();
 
-  
+
   const currentIndex = navItems.findIndex(item => item.href === pathname);
   const [value, setValue] = React.useState(currentIndex); // BottomNavigationのstate
 
@@ -64,8 +64,11 @@ export default function BottomNavigationBar() {
           value={index}
           sx={{
             color: '#fff',
+            '&.Mui-selected': {
+              color: '#544739', // 選択時の色をここで指定！
+            },
             '& .MuiSvgIcon-root': {
-              fontSize: 40, 
+              fontSize: 40,
             }
           }}
         />
