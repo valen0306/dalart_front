@@ -53,7 +53,8 @@ export default function BottomNavigationBar() {
         left: 0,
         right: 0,
         zIndex: 50,
-        display: { xs: 'flex', md: 'none' } 
+        display: { xs: 'flex', md: 'none' },
+        backgroundColor: '#8CA19B',
       }}
     >
       {navItems.map((item, index) => (
@@ -61,6 +62,12 @@ export default function BottomNavigationBar() {
           key={index}
           icon={item.icon}
           value={index}
+          sx={{
+            color: '#fff',
+            '& .MuiSvgIcon-root': {
+              fontSize: 40, 
+            }
+          }}
         />
       ))}
     </BottomNavigation>
