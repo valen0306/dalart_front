@@ -1,15 +1,15 @@
-import Footer from "./components/BottomNavigationBar"
-import Header from "./components/Header"
-import styles from "./route.module.css"
-import UserIcon from './components/user-aikon'
+"use client";
+
+import BottomNavigationBar from './components/BottomNavigationBar';
+import Header from './components/Header';
 
 export default function Home() {
   return (
-    <div className={styles.pageContainer}>
-      <Header />
-      <UserIcon size={80} />
-      <Footer />
+    <div>
+      <Header/>
+      <div>home</div>
+      <BottomNavigationBar/>
     </div>
-  );
+  )
 }
 
