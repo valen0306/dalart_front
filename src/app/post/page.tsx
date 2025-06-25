@@ -1,18 +1,23 @@
-"use client";
+'use client';
 
 import React, { useRef, useState } from 'react';
-import { Box, Button, IconButton, Typography } from '@mui/material';
+import { Box, Button, IconButton, Typography, CircularProgress } from '@mui/material';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import JudgeResult from '../components/FashionJudge/JudgeResult';
 
 export default function PostPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [photo, setPhoto] = useState<string | null>(null);
   const [cameraOn, setCameraOn] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<any>(null);
+  const [error, setError] = useState('');
 
   // カメラ起動
   const startCamera = async () => {
     setCameraOn(true);
+    setResult(null);
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       if (videoRef.current) {
@@ -47,117 +52,167 @@ export default function PostPage() {
   // 再撮影
   const retake = () => {
     setPhoto(null);
+    setResult(null);
+    setError('');
     startCamera();
   };
 
-  return (
-    <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#FFFCF7', textAlign: 'center' }}>
-      {/* 吹き出し */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2 }}>
-        <Box
-          sx={{
-            bgcolor: '#8CA19B',
-            color: '#fff',
-            px: 4,
-            py: 1.2,
-            borderRadius: 2,
-            fontSize: 22,
-            fontWeight: 500,
-            mb: 0.5,
-            position: 'relative',
-            zIndex: 1,
-          }}
-        >
-          今日の服装は？？
-        </Box>
-        {/* 吹き出しの三角 */}
-        <Box
-          sx={{
-            width: 0,
-            height: 0,
-            borderLeft: '18px solid transparent',
-            borderRight: '18px solid transparent',
-            borderTop: '18px solid #8CA19B',
-            marginTop: '-2px',
-            marginBottom: 2,
-          }}
-        />
-      </Box>
+  // 判定ボタン
+  const handleJudge = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      // --- 本来はAPIにPOSTする ---
+      // const formData = new FormData();
+      // formData.append('image', ...);
+      // const res = await fetch('/api/judge', { method: 'POST', body: formData });
+      // const data = await res.json();
 
-      {/* プレビュー枠 */}
-      <Box
-        sx={{
-          mx: 'auto',
-          width: 280,
-          height: 340,
-          borderRadius: 5,
-          border: '7px solid #8CA19B',
-          bgcolor: '#fff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-          mb: 4,
-        }}
-      >
-        {/* 1. 撮影後は画像表示 */}
-        {photo && (
-          <img
-            src={photo}
-            alt="撮影画像"
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-        )}
-        {/* 2. カメラ起動中はvideo表示 */}
-        {!photo && cameraOn && (
-          <video
-            ref={videoRef}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            autoPlay
-            playsInline
-          />
-        )}
-        {/* 3. 何もない時はカメラアイコン */}
-        {!photo && !cameraOn && (
-          <IconButton
-            onClick={startCamera}
+      // --- テスト用ダミーデータ ---
+      const data = Math.random() > 0.5
+        ? {
+            label: 'ダル着',
+            reason: 'このファッション画像は「ダル着」と判定されました。全体の落ち着いた色味が特徴であり、洗練された雰囲気を演出しています。',
+            advice: 'アクセサリーを加えて、コーディネートにアクセントをつけるとさらにおしゃれになります。',
+            image_url: photo,
+          }
+        : {
+            label: 'オシャレ着',
+            reason: 'このファッション画像は「オシャレ着」と判定されました。バランスの良いコーディネートです。',
+            advice: 'そのままでも素敵ですが、色味を足すとさらに良いです。',
+            image_url: photo,
+          };
+      setResult(data);
+    } catch (e) {
+      setError('判定に失敗しました');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 初期表示・撮影・判定前
+  if (!photo && !result) {
+    return (
+      <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#FFFCF7', textAlign: 'center' }}>
+        {/* 吹き出し */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2 }}>
+          <Box
             sx={{
               bgcolor: '#8CA19B',
               color: '#fff',
-              width: 80,
-              height: 80,
-              borderRadius: '50%',
-              '&:hover': { bgcolor: '#6B857A' },
-              fontSize: 48,
+              px: 4,
+              py: 1.2,
+              borderRadius: 2,
+              fontSize: 22,
+              fontWeight: 500,
+              mb: 0.5,
+              position: 'relative',
+              zIndex: 1,
             }}
           >
-            <CameraAltIcon sx={{ fontSize: 48 }} />
-          </IconButton>
-        )}
-        <canvas ref={canvasRef} style={{ display: 'none' }} />
-      </Box>
-
-      {/* 丸いシャッターボタン or 再撮影ボタン */}
-      {!photo && cameraOn && (
-        <IconButton
-          onClick={takePhoto}
+            今日の服装は？？
+          </Box>
+          <Box
+            sx={{
+              width: 0,
+              height: 0,
+              borderLeft: '18px solid transparent',
+              borderRight: '18px solid transparent',
+              borderTop: '18px solid #8CA19B',
+              marginTop: '-2px',
+              marginBottom: 2,
+            }}
+          />
+        </Box>
+        {/* プレビュー枠 */}
+        <Box
           sx={{
-            width: 70,
-            height: 70,
-            borderRadius: '50%',
+            mx: 'auto',
+            width: 280,
+            height: 340,
+            borderRadius: 5,
             border: '7px solid #8CA19B',
-            bgcolor: 'transparent',
-            mb: 2,
+            bgcolor: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            mb: 4,
           }}
-        />
-      )}
-      {photo && (
-        <>
+        >
+          {!cameraOn && (
+            <IconButton
+              onClick={startCamera}
+              sx={{
+                bgcolor: '#8CA19B',
+                color: '#fff',
+                width: 80,
+                height: 80,
+                borderRadius: '50%',
+                '&:hover': { bgcolor: '#6B857A' },
+                fontSize: 48,
+              }}
+            >
+              <CameraAltIcon sx={{ fontSize: 48 }} />
+            </IconButton>
+          )}
+          {cameraOn && (
+            <video
+              ref={videoRef}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              autoPlay
+              playsInline
+            />
+          )}
+          <canvas ref={canvasRef} style={{ display: 'none' }} />
+        </Box>
+        {/* シャッターボタン */}
+        {cameraOn && (
+          <IconButton
+            onClick={takePhoto}
+            sx={{
+              width: 70,
+              height: 70,
+              borderRadius: '50%',
+              border: '7px solid #8CA19B',
+              bgcolor: 'transparent',
+              mb: 2,
+            }}
+          />
+        )}
+      </Box>
+    );
+  }
+
+  // 撮影後・判定前
+  if (photo && !result) {
+    return (
+      <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#FFFCF7', textAlign: 'center' }}>
+        <Typography sx={{ fontFamily: 'Chewy, sans-serif', color: '#544739', fontSize: 28, mt: 2, mb: 1 }}>
+          DaLert
+        </Typography>
+        <Box
+          sx={{
+            mx: 'auto',
+            width: 220,
+            height: 260,
+            borderRadius: 5,
+            border: '7px solid #8CA19B',
+            bgcolor: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            mb: 3,
+          }}
+        >
+          <img src={photo} alt="撮影画像" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </Box>
+        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mb: 2 }}>
           <Button
             onClick={retake}
             variant="outlined"
             sx={{
-              mt: 2,
               borderColor: '#8CA19B',
               color: '#8CA19B',
               fontWeight: 600,
@@ -169,12 +224,11 @@ export default function PostPage() {
               '&:hover': { borderColor: '#6B857A', color: '#6B857A' },
             }}
           >
-            もう一度撮影
+            再撮影
           </Button>
           <Button
             variant="contained"
             sx={{
-              mt: 2,
               bgcolor: '#8CA19B',
               color: '#fff',
               fontWeight: 600,
@@ -183,18 +237,32 @@ export default function PostPage() {
               py: 1,
               fontSize: 18,
               '&:hover': { bgcolor: '#6B857A' },
-              display: 'block',
-              mx: 'auto'
             }}
-            onClick={() => {
-              // 投稿処理をここに記述
-              alert('投稿しました！（ダミー）');
-            }}
+            onClick={handleJudge}
+            disabled={loading}
           >
-            投稿
+            {loading ? <CircularProgress size={24} color="inherit" /> : '判定する'}
           </Button>
-        </>
-      )}
-    </Box>
-  );
+        </Box>
+        {error && <Typography color="error">{error}</Typography>}
+      </Box>
+    );
+  }
+
+  // 判定結果画面
+  if (result) {
+    return (
+      <JudgeResult
+        result={result}
+        onRetake={retake}
+        onNext={() => {
+          // 次へ進む処理（例：ページ遷移やstateリセットなど）
+          setPhoto(null);
+          setResult(null);
+        }}
+      />
+    );
+  }
+
+  return null;
 }
