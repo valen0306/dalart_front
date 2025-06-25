@@ -1,36 +1,68 @@
-import styles from "./BottomNavigationBar.module.css";
-import Image from "next/image";
+'use client';
 
-const Footer = () => {
+import React from 'react';
+import BottomNavigation from '@mui/material/BottomNavigation';
+import BottomNavigationAction from '@mui/material/BottomNavigationAction';
+import HomeIcon from '@mui/icons-material/Home';
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { usePathname, useRouter } from 'next/navigation'; 
+
+const navItems = [
+  { href: '/', icon: <HomeIcon /> },
+  { href: '/post', icon: <AddBoxIcon /> },
+  { href: '/profile', icon: <AccountCircleIcon /> },
+];
+
+export default function BottomNavigationBar() {
+  const router = useRouter(); // ナビゲーションのためにrouterを使用
+  const pathname = usePathname();
+
+  
+  const currentIndex = navItems.findIndex(item => item.href === pathname);
+  const [value, setValue] = React.useState(currentIndex); // BottomNavigationのstate
+
+  // valueが変更されたときにページ遷移を行う
+  React.useEffect(() => {
+    if (value !== -1 && navItems[value] && navItems[value].href !== pathname) {
+      router.push(navItems[value].href);
+    }
+  }, [value, router, pathname]);
+
+  // pathnameが変更されたときにvalueを更新
+  React.useEffect(() => {
+    const newIndex = navItems.findIndex(item => item.href === pathname);
+    if (newIndex !== -1 && newIndex !== value) {
+      setValue(newIndex);
+    }
+  }, [pathname, value]);
+
+
   return (
-    <footer className={styles.footer}>
-      <div className={styles.first}>
-        <Image
-          className={styles.homeaikon}
-          src="ホームアイコン.svg"
-          alt="ホームアイコン画像"
-          width={35}
-          height={35}
+    <BottomNavigation
+      showLabels // ラベル（テキスト）を表示
+      value={value}
+      onChange={(event, newValue) => {
+        setValue(newValue);
+      }}
+      // MUIのスタイルを直接適用
+      sx={{
+        width: '100%',
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        display: { xs: 'flex', md: 'none' } 
+      }}
+    >
+      {navItems.map((item, index) => (
+        <BottomNavigationAction
+          key={index}
+          icon={item.icon}
+          value={index}
         />
-
-        <Image
-          className={styles.camaeraaikon}
-          src="投稿画面アイコン.svg"
-          alt="投稿画面アイコン画像"
-          width={35}
-          height={35}
-        />
-
-        <Image
-          className={styles.aikon}
-          src="アイコン.svg"
-          alt="アイコン画像"
-          width={35}
-          height={35}
-        />
-      </div>
-    </footer>
+      ))}
+    </BottomNavigation>
   );
-};
-
-export default Footer;
+}
