@@ -116,8 +116,8 @@ export default function Timeline() {
         initialSlide={activeIndex}
         style={{
           borderRadius: 20,
-          background: '#FFFCF7',
-          boxShadow: '0 2px 8px #ccc',
+          background: 'transparent',
+          boxShadow: 'none',
           padding: '24px 0'
         }}
       >
