@@ -4,7 +4,7 @@ import { Box, Typography, Avatar } from '@mui/material';
 export default function TimelinePost({ post }: { post: any }) {
   // 画像URLの生成
   const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/posts/${post.image_path}`;
-  const username = post.profiles?.username || 'unknown';
+  const username = post.profiles?.user_name || 'unknown';
 
   return (
     <Box sx={{
