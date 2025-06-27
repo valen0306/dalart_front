@@ -3,6 +3,7 @@
 import React from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import ArrowDown from './ArrowDown';
+import { createClient } from '@supabase/supabase-js';
 
 type JudgeResultProps = {
   result: {
@@ -12,11 +13,54 @@ type JudgeResultProps = {
     image_url: string;
   };
   onRetake: () => void;
-  onNext: () => void;
+  onPost: () => void;
 };
 
-export default function JudgeResult({ result, onRetake, onNext }: JudgeResultProps) {
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+export default function JudgeResult({ result, onRetake, onPost }: JudgeResultProps) {
   const isDarui = result.label === 'ダル着';
+
+  const handlePost = async () => {
+    if (!result?.image_url) return;
+    try {
+      // 1. ユーザー情報取得
+      const user = (await supabase.auth.getUser()).data.user;
+      console.log(user);//debug
+      if (!user) throw new Error('ユーザー情報が取得できません');
+
+      // 2. 画像をStorageにアップロード（dataURL→Blob変換）
+      const fileName = `${user.id}_${Date.now()}.png`;
+      console.log(fileName);//debug
+      const imageBlob = await (await fetch(result.image_url)).blob();
+      console.log(imageBlob);//debug
+      const { error: uploadError } = await supabase.storage
+        .from('posts')
+        .upload(fileName, imageBlob, { contentType: 'image/png' });
+      console.log(uploadError);
+      if (uploadError) throw uploadError;
+
+      // 3. 投稿データをDBに保存
+      const { error: insertError } = await supabase
+        .from('posts')
+        .insert([
+          {
+            user_id: user.id,
+            image_path: fileName,
+            created_at: new Date().toISOString(),
+          },
+        ]);
+      if (insertError) throw insertError;
+
+      alert('投稿が完了しました！');
+      onRetake();
+    } catch (e) {
+      alert('投稿に失敗しました');
+    }
+  };
 
   return (
     <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#FFFCF7', textAlign: 'center' }}>
@@ -78,7 +122,7 @@ export default function JudgeResult({ result, onRetake, onNext }: JudgeResultPro
           再撮影
         </Button>
         <Button
-          onClick={onNext}
+          onClick={handlePost}
           variant="contained"
           sx={{
             bgcolor: '#8CA19B',
@@ -91,7 +135,7 @@ export default function JudgeResult({ result, onRetake, onNext }: JudgeResultPro
             '&:hover': { bgcolor: '#6B857A' },
           }}
         >
-          次へ進む
+          投稿
         </Button>
       </Box>
     </Box>

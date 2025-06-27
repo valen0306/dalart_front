@@ -255,8 +255,8 @@ export default function PostPage() {
       <JudgeResult
         result={result}
         onRetake={retake}
-        onNext={() => {
-          // 次へ進む処理（例：ページ遷移やstateリセットなど）
+        onPost={() => {
+          // 投稿処理
           setPhoto(null);
           setResult(null);
         }}
