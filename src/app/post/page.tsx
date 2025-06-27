@@ -6,6 +6,13 @@ import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import JudgeResult from '../components/FashionJudge/JudgeResult';
 import Footer from '../components/BottomNavigationBar';
 import Header from '../components/Header';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
 
 export default function PostPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -64,26 +71,47 @@ export default function PostPage() {
     setLoading(true);
     setError('');
     try {
-      // --- 本来はAPIにPOSTする ---
-      // const formData = new FormData();
-      // formData.append('image', ...);
-      // const res = await fetch('/api/judge', { method: 'POST', body: formData });
-      // const data = await res.json();
+      // 1. Supabase AuthのJWT取得
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
+      if (!accessToken) {
+        setError('認証情報が取得できませんでした。再ログインしてください。');
+        setLoading(false);
+        return;
+      }
 
-      // --- テスト用ダミーデータ ---
-      const data = Math.random() > 0.5
-        ? {
-            label: 'ダル着',
-            reason: 'このファッション画像は「ダル着」と判定されました。全体の落ち着いた色味が特徴であり、洗練された雰囲気を演出しています。',
-            advice: 'アクセサリーを加えて、コーディネートにアクセントをつけるとさらにおしゃれになります。',
-            image_url: photo,
-          }
-        : {
-            label: 'オシャレ着',
-            reason: 'このファッション画像は「オシャレ着」と判定されました。バランスの良いコーディネートです。',
-            advice: 'そのままでも素敵ですが、色味を足すとさらに良いです。',
-            image_url: photo,
-          };
+      // 2. dataURL→Blob変換
+      if (!photo) {
+        setError('画像がありません');
+        setLoading(false);
+        return;
+      }
+      const blob = await (await fetch(photo)).blob();
+      const file = new File([blob], 'photo.png', { type: 'image/png' });
+
+      // 3. multipart/form-dataでAPIにPOST
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('https://0971-240a-61-6cbd-22eb-bdbf-fafd-449c-1314.ngrok-free.app/predict', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          // Content-TypeはFormData利用時は自動で付与されるので不要
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+      console.log(data);
+
+      if (!res.ok) {
+        setError(data.error || '判定APIでエラーが発生しました');
+        setLoading(false);
+        return;
+      }
+
+      // 4. レスポンスをそのままセット
       setResult(data);
     } catch (e) {
       setError('判定に失敗しました');
@@ -194,11 +222,9 @@ export default function PostPage() {
   if (photo && !result) {
     return (
       <>
-        <Header />
+        <Header/>
         <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#FFFCF7', textAlign: 'center', pb: 8 }}>
-          <Typography sx={{ fontFamily: 'Chewy, sans-serif', color: '#544739', fontSize: 28, mt: 2, mb: 1 }}>
-            DaLert
-          </Typography>
+          
           <Box
             sx={{
               mx: 'auto',
@@ -263,7 +289,7 @@ export default function PostPage() {
   if (result) {
     return (
       <>
-        <Header />
+        <Header/>
         <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#FFFCF7', textAlign: 'center', pb: 8 }}>
           <JudgeResult
             result={result}

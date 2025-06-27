@@ -64,9 +64,7 @@ export default function JudgeResult({ result, onRetake, onPost }: JudgeResultPro
 
   return (
     <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#FFFCF7', textAlign: 'center' }}>
-      <Typography sx={{ fontFamily: 'Chewy, sans-serif', color: '#544739', fontSize: 28, mt: 2, mb: 1 }}>
-        DaLert
-      </Typography>
+      
       <Box
         sx={{
           mx: 'auto',
