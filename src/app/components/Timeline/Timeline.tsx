@@ -86,7 +86,7 @@ export default function Timeline() {
   }
 
   return (
-    <Box sx={{ maxWidth: 400, mx: 'auto', mt: 4 }}>
+    <Box sx={{ maxWidth: 400, mx: 'auto', my: '3rem' }}>
       {/* ストーリー風アイコンSwiper */}
       <Swiper
         onSlideChange={(swiper) => handleSlideChange(swiper.activeIndex)}
@@ -101,7 +101,7 @@ export default function Timeline() {
         {latestPostsByUser.map((post, idx) => (
           <SwiperSlide key={post.user_id}>
             <Box sx={{ textAlign: 'center', opacity: idx === activeIndex ? 1 : 0.5 }}>
-              <Avatar src="/ホームアイコン.svg" sx={{ width: 56, height: 56, mx: 'auto', border: '3px solid #E0D9C7' }} />
+              <Avatar src="/ホームアイコン.svg" sx={{ width: 80, height: 80, mx: 'auto', border: '3px solid #E0D9C7' }} />
               <Typography sx={{ fontSize: 13, mt: 1 }}>{post.profiles?.user_name || 'unknown'}</Typography>
             </Box>
           </SwiperSlide>

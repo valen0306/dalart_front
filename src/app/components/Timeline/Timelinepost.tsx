@@ -8,21 +8,44 @@ export default function TimelinePost({ post }: { post: any }) {
 
   return (
     <Box sx={{
-      bgcolor: '#FFFCF7',
+      bgcolor: 'transparent',
       borderRadius: 5,
       p: 2,
       mb: 4,
-      boxShadow: 2,
+      boxShadow: 'none',
       textAlign: 'center',
       maxWidth: 350,
       mx: 'auto'
     }}>
-      <Box sx={{ mb: 1 }}>
+      {/* <Box sx={{ mb: 1 }}>
         <Avatar src={post.profiles?.avatar_url || '/ホームアイコン.svg'} sx={{ width: 48, height: 48, mx: 'auto' }} />
         <Typography sx={{ fontWeight: 600, mt: 1 }}>{username}</Typography>
-      </Box>
-      <Box sx={{ borderRadius: 5, overflow: 'hidden', mb: 1 }}>
-        <img src={imageUrl} alt="投稿画像" style={{ width: '100%', objectFit: 'cover' }} />
+      </Box> */}
+      <Box
+        sx={{
+          width: 320,         // 幅
+          height: 440,        // 高さ
+          borderRadius: 5,
+          overflow: 'hidden',
+          mb: 1,
+          mx: 'auto',         // 中央寄せ
+          border: '7px solid #8CA19B', // 撮影時と同じ枠
+          bgcolor: '#fff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <img
+          src={imageUrl}
+          alt="投稿画像"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            display: 'block',
+          }}
+        />
       </Box>
       <Typography sx={{ color: '#888', fontSize: 12 }}>
         {new Date(post.created_at).toLocaleString('ja-JP', { hour12: false })}
