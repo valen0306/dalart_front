@@ -58,9 +58,9 @@ export default function Timeline() {
       {/* ストーリー風アイコン（動的生成） */}
       <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, mt: 2, mb: 2 }}>
         {Array.from(
-          new Map(posts.map(post => [post.user_id, post.profiles?.username || 'unknown'])).entries()
-        ).map(([user_id, username]) => (
-          <TimelinePost.StoryIcon key={user_id} label={username as string} img="/ホームアイコン.svg" />
+          new Map(posts.map(post => [post.user_id, post.profiles?.user_name || 'unknown'])).entries()
+        ).map(([user_id, user_name]) => (
+          <TimelinePost.StoryIcon key={user_id} label={user_name as string} img="/ホームアイコン.svg" />
         ))}
       </Box>
       {/* 投稿リスト */}
