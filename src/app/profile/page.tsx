@@ -4,6 +4,7 @@ import React, { useRef, useState } from 'react';
 import { Box, Button, Avatar, Typography } from '@mui/material';
 import { createClient } from '@supabase/supabase-js';
 import Footer from '../components/BottomNavigationBar';
+import Header from '../components/Header';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -66,7 +67,12 @@ export default function ProfilePage() {
   };
 
   return (
-    <Box sx={{ p: 4, textAlign: 'center' }}>
+    <div> 
+        <Header />
+        <Box sx={{ p: 4, textAlign: 'center',bgcolor: '#FFFCF7',minHeight: '100vh',   // 高さを画面いっぱいに
+    width: '100vw',       // 幅を画面いっぱいに
+    boxSizing: 'border-box', // パディング込みで幅を計算  
+    }}>
       <Typography variant="h5" sx={{ mb: 2 }}>プロフィール画像を変更</Typography>
       <Avatar
         src={avatarUrl || '/ホームアイコン.svg'}
@@ -88,6 +94,8 @@ export default function ProfilePage() {
       </Button>
       <Footer />
     </Box>
+    </div>
+    
     
   );
 }

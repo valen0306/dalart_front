@@ -5,6 +5,7 @@ import { Box, Button, IconButton, Typography, CircularProgress } from '@mui/mate
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import JudgeResult from '../components/FashionJudge/JudgeResult';
 import Footer from '../components/BottomNavigationBar';
+import Header from '../components/Header';
 
 export default function PostPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -94,178 +95,188 @@ export default function PostPage() {
   // 初期表示・撮影・判定前
   if (!photo && !result) {
     return (
-      <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#FFFCF7', textAlign: 'center', position: 'relative' }}>
-        {/* 吹き出し */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2 }}>
-          <Box
-            sx={{
-              bgcolor: '#8CA19B',
-              color: '#fff',
-              px: 4,
-              py: 1.2,
-              borderRadius: 2,
-              fontSize: 22,
-              fontWeight: 500,
-              mb: 0.5,
-              position: 'relative',
-              zIndex: 1,
-            }}
-          >
-            今日の服装は？？
-          </Box>
-          <Box
-            sx={{
-              width: 0,
-              height: 0,
-              borderLeft: '18px solid transparent',
-              borderRight: '18px solid transparent',
-              borderTop: '18px solid #8CA19B',
-              marginTop: '-2px',
-              marginBottom: 2,
-            }}
-          />
-        </Box>
-        {/* プレビュー枠 */}
-        <Box
-          sx={{
-            mx: 'auto',
-            width: 280,
-            height: 340,
-            borderRadius: 5,
-            border: '7px solid #8CA19B',
-            bgcolor: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'hidden',
-            mb: 4,
-          }}
-        >
-          {!cameraOn && (
-            <IconButton
-              onClick={startCamera}
+      <>
+        <Header />
+        <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#FFFCF7', textAlign: 'center', pb: 8 }}>
+          {/* 吹き出し */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2 }}>
+            <Box
               sx={{
                 bgcolor: '#8CA19B',
                 color: '#fff',
-                width: 80,
-                height: 80,
-                borderRadius: '50%',
-                '&:hover': { bgcolor: '#6B857A' },
-                fontSize: 48,
+                px: 4,
+                py: 1.2,
+                borderRadius: 2,
+                fontSize: 22,
+                fontWeight: 500,
+                mb: 0.5,
+                position: 'relative',
+                zIndex: 1,
               }}
             >
-              <CameraAltIcon sx={{ fontSize: 48 }} />
-            </IconButton>
-          )}
+              今日の服装は？？
+            </Box>
+            <Box
+              sx={{
+                width: 0,
+                height: 0,
+                borderLeft: '18px solid transparent',
+                borderRight: '18px solid transparent',
+                borderTop: '18px solid #8CA19B',
+                marginTop: '-2px',
+                marginBottom: 2,
+              }}
+            />
+          </Box>
+          {/* プレビュー枠 */}
+          <Box
+            sx={{
+              mx: 'auto',
+              width: 280,
+              height: 340,
+              borderRadius: 5,
+              border: '7px solid #8CA19B',
+              bgcolor: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+              mb: 4,
+            }}
+          >
+            {!cameraOn && (
+              <IconButton
+                onClick={startCamera}
+                sx={{
+                  bgcolor: '#8CA19B',
+                  color: '#fff',
+                  width: 80,
+                  height: 80,
+                  borderRadius: '50%',
+                  '&:hover': { bgcolor: '#6B857A' },
+                  fontSize: 48,
+                }}
+              >
+                <CameraAltIcon sx={{ fontSize: 48 }} />
+              </IconButton>
+            )}
+            {cameraOn && (
+              <video
+                ref={videoRef}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                autoPlay
+                playsInline
+              />
+            )}
+            <canvas ref={canvasRef} style={{ display: 'none' }} />
+          </Box>
+          {/* シャッターボタン */}
           {cameraOn && (
-            <video
-              ref={videoRef}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              autoPlay
-              playsInline
+            <IconButton
+              onClick={takePhoto}
+              sx={{
+                width: 70,
+                height: 70,
+                borderRadius: '50%',
+                border: '7px solid #8CA19B',
+                bgcolor: 'transparent',
+                mb: 2,
+              }}
             />
           )}
-          <canvas ref={canvasRef} style={{ display: 'none' }} />
         </Box>
-        {/* シャッターボタン */}
-        {cameraOn && (
-          <IconButton
-            onClick={takePhoto}
-            sx={{
-              width: 70,
-              height: 70,
-              borderRadius: '50%',
-              border: '7px solid #8CA19B',
-              bgcolor: 'transparent',
-              mb: 2,
-            }}
-          />
-        )}
         <Footer />
-      </Box>
+      </>
     );
   }
 
   // 撮影後・判定前
   if (photo && !result) {
     return (
-      
-      <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#FFFCF7', textAlign: 'center', position: 'relative' }}>
-      <Typography sx={{ fontFamily: 'Chewy, sans-serif', color: '#544739', fontSize: 28, mt: 2, mb: 1 }}>
-        DaLert
-      </Typography>
-      <Box
-        sx={{
-          mx: 'auto',
-          width: 220,
-          height: 260,
-          borderRadius: 5,
-          border: '7px solid #8CA19B',
-          bgcolor: '#fff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-          mb: 3,
-        }}
-      >
-        <img src={photo} alt="撮影画像" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-      </Box>
-      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mb: 2 }}>
-        <Button
-          onClick={retake}
-          variant="outlined"
-          sx={{
-            borderColor: '#8CA19B',
-            color: '#8CA19B',
-            fontWeight: 600,
-            borderWidth: 2,
-            borderRadius: 3,
-            px: 4,
-            py: 1,
-            fontSize: 18,
-            '&:hover': { borderColor: '#6B857A', color: '#6B857A' },
-          }}
-        >
-          再撮影
-        </Button>
-        <Button
-          variant="contained"
-          sx={{
-            bgcolor: '#8CA19B',
-            color: '#fff',
-            fontWeight: 600,
-            borderRadius: 3,
-            px: 4,
-            py: 1,
-            fontSize: 18,
-            '&:hover': { bgcolor: '#6B857A' },
-          }}
-          onClick={handleJudge}
-          disabled={loading}
-        >
-          {loading ? <CircularProgress size={24} color="inherit" /> : '判定する'}
-        </Button>
-      </Box>
-      {error && <Typography color="error">{error}</Typography>}
-      <Footer />
-    </Box>
-     
+      <>
+        <Header />
+        <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#FFFCF7', textAlign: 'center', pb: 8 }}>
+          <Typography sx={{ fontFamily: 'Chewy, sans-serif', color: '#544739', fontSize: 28, mt: 2, mb: 1 }}>
+            DaLert
+          </Typography>
+          <Box
+            sx={{
+              mx: 'auto',
+              width: 220,
+              height: 260,
+              borderRadius: 5,
+              border: '7px solid #8CA19B',
+              bgcolor: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+              mb: 3,
+            }}
+          >
+            <img src={photo} alt="撮影画像" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </Box>
+          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mb: 2 }}>
+            <Button
+              onClick={retake}
+              variant="outlined"
+              sx={{
+                borderColor: '#8CA19B',
+                color: '#8CA19B',
+                fontWeight: 600,
+                borderWidth: 2,
+                borderRadius: 3,
+                px: 4,
+                py: 1,
+                fontSize: 18,
+                '&:hover': { borderColor: '#6B857A', color: '#6B857A' },
+              }}
+            >
+              再撮影
+            </Button>
+            <Button
+              variant="contained"
+              sx={{
+                bgcolor: '#8CA19B',
+                color: '#fff',
+                fontWeight: 600,
+                borderRadius: 3,
+                px: 4,
+                py: 1,
+                fontSize: 18,
+                '&:hover': { bgcolor: '#6B857A' },
+              }}
+              onClick={handleJudge}
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} color="inherit" /> : '判定する'}
+            </Button>
+          </Box>
+          {error && <Typography color="error">{error}</Typography>}
+        </Box>
+        <Footer />
+      </>
     );
   }
 
   // 判定結果画面
   if (result) {
     return (
-      <JudgeResult
-        result={result}
-        onRetake={retake}
-        onPost={() => {
-          // 投稿処理
-          setPhoto(null);
-          setResult(null);
-        }}
-      />
+      <>
+        <Header />
+        <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#FFFCF7', textAlign: 'center', pb: 8 }}>
+          <JudgeResult
+            result={result}
+            onRetake={retake}
+            onPost={() => {
+              // 投稿処理
+              setPhoto(null);
+              setResult(null);
+            }}
+          />
+        </Box>
+        <Footer />
+      </>
     );
   }
 
