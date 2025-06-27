@@ -4,6 +4,7 @@ import React, { useRef, useState } from 'react';
 import { Box, Button, IconButton, Typography, CircularProgress } from '@mui/material';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import JudgeResult from '../components/FashionJudge/JudgeResult';
+import Footer from '../components/BottomNavigationBar';
 
 export default function PostPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -93,7 +94,7 @@ export default function PostPage() {
   // 初期表示・撮影・判定前
   if (!photo && !result) {
     return (
-      <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#FFFCF7', textAlign: 'center' }}>
+      <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#FFFCF7', textAlign: 'center', position: 'relative' }}>
         {/* 吹き出し */}
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2 }}>
           <Box
@@ -180,6 +181,7 @@ export default function PostPage() {
             }}
           />
         )}
+        <Footer />
       </Box>
     );
   }
@@ -187,65 +189,68 @@ export default function PostPage() {
   // 撮影後・判定前
   if (photo && !result) {
     return (
-      <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#FFFCF7', textAlign: 'center' }}>
-        <Typography sx={{ fontFamily: 'Chewy, sans-serif', color: '#544739', fontSize: 28, mt: 2, mb: 1 }}>
-          DaLert
-        </Typography>
-        <Box
+      
+      <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#FFFCF7', textAlign: 'center', position: 'relative' }}>
+      <Typography sx={{ fontFamily: 'Chewy, sans-serif', color: '#544739', fontSize: 28, mt: 2, mb: 1 }}>
+        DaLert
+      </Typography>
+      <Box
+        sx={{
+          mx: 'auto',
+          width: 220,
+          height: 260,
+          borderRadius: 5,
+          border: '7px solid #8CA19B',
+          bgcolor: '#fff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+          mb: 3,
+        }}
+      >
+        <img src={photo} alt="撮影画像" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      </Box>
+      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mb: 2 }}>
+        <Button
+          onClick={retake}
+          variant="outlined"
           sx={{
-            mx: 'auto',
-            width: 220,
-            height: 260,
-            borderRadius: 5,
-            border: '7px solid #8CA19B',
-            bgcolor: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'hidden',
-            mb: 3,
+            borderColor: '#8CA19B',
+            color: '#8CA19B',
+            fontWeight: 600,
+            borderWidth: 2,
+            borderRadius: 3,
+            px: 4,
+            py: 1,
+            fontSize: 18,
+            '&:hover': { borderColor: '#6B857A', color: '#6B857A' },
           }}
         >
-          <img src={photo} alt="撮影画像" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        </Box>
-        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mb: 2 }}>
-          <Button
-            onClick={retake}
-            variant="outlined"
-            sx={{
-              borderColor: '#8CA19B',
-              color: '#8CA19B',
-              fontWeight: 600,
-              borderWidth: 2,
-              borderRadius: 3,
-              px: 4,
-              py: 1,
-              fontSize: 18,
-              '&:hover': { borderColor: '#6B857A', color: '#6B857A' },
-            }}
-          >
-            再撮影
-          </Button>
-          <Button
-            variant="contained"
-            sx={{
-              bgcolor: '#8CA19B',
-              color: '#fff',
-              fontWeight: 600,
-              borderRadius: 3,
-              px: 4,
-              py: 1,
-              fontSize: 18,
-              '&:hover': { bgcolor: '#6B857A' },
-            }}
-            onClick={handleJudge}
-            disabled={loading}
-          >
-            {loading ? <CircularProgress size={24} color="inherit" /> : '判定する'}
-          </Button>
-        </Box>
-        {error && <Typography color="error">{error}</Typography>}
+          再撮影
+        </Button>
+        <Button
+          variant="contained"
+          sx={{
+            bgcolor: '#8CA19B',
+            color: '#fff',
+            fontWeight: 600,
+            borderRadius: 3,
+            px: 4,
+            py: 1,
+            fontSize: 18,
+            '&:hover': { bgcolor: '#6B857A' },
+          }}
+          onClick={handleJudge}
+          disabled={loading}
+        >
+          {loading ? <CircularProgress size={24} color="inherit" /> : '判定する'}
+        </Button>
       </Box>
+      {error && <Typography color="error">{error}</Typography>}
+      <Footer />
+    </Box>
+     
     );
   }
 

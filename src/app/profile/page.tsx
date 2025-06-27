@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react';
 import { Box, Button, Avatar, Typography } from '@mui/material';
 import { createClient } from '@supabase/supabase-js';
+import Footer from '../components/BottomNavigationBar';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -85,6 +86,8 @@ export default function ProfilePage() {
       >
         {uploading ? 'アップロード中...' : '画像を選択'}
       </Button>
+      <Footer />
     </Box>
+    
   );
 }
