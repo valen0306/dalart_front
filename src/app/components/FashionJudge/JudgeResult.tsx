@@ -29,14 +29,18 @@ export default function JudgeResult({ result, onRetake, onPost }: JudgeResultPro
     try {
       // 1. ユーザー情報取得
       const user = (await supabase.auth.getUser()).data.user;
+      console.log(user);//debug
       if (!user) throw new Error('ユーザー情報が取得できません');
 
       // 2. 画像をStorageにアップロード（dataURL→Blob変換）
       const fileName = `${user.id}_${Date.now()}.png`;
+      console.log(fileName);//debug
       const imageBlob = await (await fetch(result.image_url)).blob();
+      console.log(imageBlob);//debug
       const { error: uploadError } = await supabase.storage
         .from('posts')
         .upload(fileName, imageBlob, { contentType: 'image/png' });
+      console.log(uploadError);
       if (uploadError) throw uploadError;
 
       // 3. 投稿データをDBに保存
