@@ -23,6 +23,35 @@ export default function SignInPage() {
     if (error) {
       setError(error.message);
     } else {
+      // 1. ユーザー情報取得
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        // 2. profilesに既にレコードがあるか確認
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', user.id)
+          .single();
+
+        // 3. なければINSERT
+        if (!profile) {
+          // 必要に応じてuser_nameなどを入力フォームから取得してください
+          const defaultUserName = user.email?.split('@')[0] || 'user';
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert([
+              {
+                id: user.id,
+                user_name: defaultUserName,
+                // avatar_urlやbioなど他のカラムも必要に応じて追加
+              },
+            ]);
+          if (insertError) {
+            setError('プロフィール作成失敗: ' + insertError.message);
+            return;
+          }
+        }
+      }
       router.push('/');
     }
   };
