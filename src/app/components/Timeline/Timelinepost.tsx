@@ -5,6 +5,13 @@ export default function TimelinePost({ post }: { post: any }) {
   // 画像URLの生成
   const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/posts/${post.image_path}`;
   const username = post.profiles?.user_name || 'unknown';
+  
+  // アバター画像URLの生成
+  const avatarUrl = post.profiles?.avatar_url 
+    ? post.profiles.avatar_url.startsWith('http') 
+      ? post.profiles.avatar_url 
+      : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/user/${post.profiles.avatar_url}`
+    : '/ホームアイコン.svg';
 
   return (
     <Box sx={{
@@ -18,7 +25,7 @@ export default function TimelinePost({ post }: { post: any }) {
       mx: 'auto'
     }}>
       {/* <Box sx={{ mb: 1 }}>
-        <Avatar src={post.profiles?.avatar_url || '/ホームアイコン.svg'} sx={{ width: 48, height: 48, mx: 'auto' }} />
+        <Avatar src={avatarUrl} sx={{ width: 48, height: 48, mx: 'auto' }} />
         <Typography sx={{ fontWeight: 600, mt: 1 }}>{username}</Typography>
       </Box> */}
       <Box

@@ -93,7 +93,7 @@ export default function PostPage() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch('https://0971-240a-61-6cbd-22eb-bdbf-fafd-449c-1314.ngrok-free.app/predict', {
+      const res = await fetch('https://dalert-api.onrender.com/predict', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${accessToken}`,

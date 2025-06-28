@@ -63,6 +63,11 @@ export default function ProfilePage() {
       .eq('id', user.id);
     console.log('profilesテーブル更新結果:', { updateData, updateError });
 
+    // タイムラインを更新
+    if (typeof window !== 'undefined' && (window as any).refreshTimeline) {
+      (window as any).refreshTimeline();
+    }
+
     setUploading(false);
   };
 
