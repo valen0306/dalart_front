@@ -37,7 +37,7 @@ export default function ProfilePage() {
         if (profile?.avatar_url) {
           setAvatarUrl(profile.avatar_url);
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('プロフィール取得エラー:', error);
       } finally {
         setLoading(false);

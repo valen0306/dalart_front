@@ -13,7 +13,6 @@ type JudgeResultProps = {
   };
   photo: string;
   onRetake: () => void;
-  onPost: () => void;
 };
 
 const supabase = createClient(
@@ -21,7 +20,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-export default function JudgeResult({ result, photo, onRetake, onPost }: JudgeResultProps) {
+export default function JudgeResult({ result, photo, onRetake }: JudgeResultProps) {
   const isDarui = result.label === 'ダル着';
 
   const handlePost = async () => {
@@ -58,7 +57,7 @@ export default function JudgeResult({ result, photo, onRetake, onPost }: JudgeRe
 
       alert('投稿が完了しました！');
       onRetake();
-    } catch (e) {
+    } catch {
       alert('投稿に失敗しました');
     }
   };

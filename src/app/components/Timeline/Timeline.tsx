@@ -1,28 +1,56 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { Box, Button, CircularProgress } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { createClient } from '@supabase/supabase-js';
 import TimelinePost from './Timelinepost';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
+import { useRouter } from 'next/navigation';
 
 // ストーリーアイコン用
 import Avatar from '@mui/material/Avatar';
-import Typography from '@mui/material/Typography';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-const PAGE_SIZE = 7;
-
 export default function Timeline() {
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<Array<{
+    id: string;
+    user_id: string;
+    image_path: string;
+    created_at: string;
+    profiles?: {
+      user_name: string;
+      avatar_url: string;
+    };
+  }>>([]);
   const [loading, setLoading] = useState(false);
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const router = useRouter();
+
+  // 認証状態の確認
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+      setAuthLoading(false);
+    };
+
+    checkUser();
+
+    // 認証状態の変更を監視
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user || null);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -43,6 +71,16 @@ export default function Timeline() {
     setPosts(data || []);
     setLoading(false);
   };
+
+  // 手動更新用の関数（外部から呼び出し可能）
+  const refreshTimeline = () => {
+    fetchPosts();
+  };
+
+  // グローバルに公開（他のコンポーネントから呼び出し可能）
+  if (typeof window !== 'undefined') {
+    (window as any).refreshTimeline = refreshTimeline;
+  }
 
   useEffect(() => {
     fetchPosts();
@@ -70,13 +108,17 @@ export default function Timeline() {
     };
   }, []);
 
-  const handleLoadMore = () => {
-    setOffset((prev) => prev + PAGE_SIZE);
-    fetchPosts();
-  };
-
   // 各ユーザーの最新投稿だけを抽出
-  const latestPostsByUser: any[] = [];
+  const latestPostsByUser: Array<{
+    id: string;
+    user_id: string;
+    image_path: string;
+    created_at: string;
+    profiles?: {
+      user_name: string;
+      avatar_url: string;
+    };
+  }> = [];
   const seenUserIds = new Set();
   for (const post of posts) {
     if (!seenUserIds.has(post.user_id)) {
@@ -102,18 +144,119 @@ export default function Timeline() {
     }
   };
 
-  // 手動更新用の関数（外部から呼び出し可能）
-  const refreshTimeline = () => {
-    fetchPosts();
-  };
-
-  // グローバルに公開（他のコンポーネントから呼び出し可能）
-  if (typeof window !== 'undefined') {
-    (window as any).refreshTimeline = refreshTimeline;
+  // 認証状態の読み込み中
+  if (authLoading) {
+    return <Box sx={{ textAlign: 'center', mt: 4 }}>読み込み中...</Box>;
   }
 
+  // 未認証ユーザー向けの表示
+  if (!user) {
+    return (
+      <Box sx={{ maxWidth: 400, mx: 'auto', my: '3rem', textAlign: 'center' }}>
+        <Typography variant="h5" sx={{ mb: 3, color: '#8CA19B', fontWeight: 'bold' }}>
+          Dalertへようこそ
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 4, color: '#666' }}>
+          今日の服装を判定してもらおう！
+        </Typography>
+        
+        {/* サンプル投稿の表示
+        {posts.length > 0 && (
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" sx={{ mb: 2, color: '#8CA19B' }}>
+              みんなの投稿
+            </Typography>
+            <Box sx={{ 
+              maxHeight: 300, 
+              overflow: 'hidden', 
+              borderRadius: 2,
+              border: '2px solid #E0D9C7'
+            }}>
+              <img 
+                src={posts[0].image_path} 
+                alt="サンプル投稿" 
+                style={{ 
+                  width: '100%', 
+                  height: 'auto',
+                  objectFit: 'cover'
+                }} 
+              />
+            </Box>
+          </Box>
+        )} */}
+        
+        {/* 認証ボタン */}
+        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Button
+            variant="contained"
+            onClick={() => router.push('/auth/signin')}
+            sx={{
+              bgcolor: '#8CA19B',
+              color: '#fff',
+              fontWeight: 600,
+              borderRadius: 3,
+              px: 4,
+              py: 1.5,
+              fontSize: 16,
+              '&:hover': { bgcolor: '#6B857A' },
+            }}
+          >
+            サインイン
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => router.push('/auth/signup')}
+            sx={{
+              borderColor: '#8CA19B',
+              color: '#8CA19B',
+              fontWeight: 600,
+              borderRadius: 3,
+              px: 4,
+              py: 1.5,
+              fontSize: 16,
+              borderWidth: 2,
+              '&:hover': { 
+                borderColor: '#6B857A', 
+                color: '#6B857A',
+                bgcolor: 'rgba(139, 161, 155, 0.1)'
+              },
+            }}
+          >
+            サインアップ
+          </Button>
+        </Box>
+      </Box>
+    );
+  }
+
+  // 投稿がない場合
   if (!posts || posts.length === 0) {
-    return <Box sx={{ textAlign: 'center', mt: 4 }}>投稿がありません</Box>;
+    return (
+      <Box sx={{ maxWidth: 400, mx: 'auto', my: '3rem', textAlign: 'center' }}>
+        <Typography variant="h6" sx={{ mb: 2, color: '#8CA19B' }}>
+          まだ投稿がありません
+        </Typography>
+        <Typography variant="body2" sx={{ color: '#666', mb: 3 }}>
+          最初の投稿をしてみましょう！
+        </Typography>
+        <Button
+          variant="contained"
+          onClick={() => router.push('/post')}
+          sx={{
+            bgcolor: '#8CA19B',
+            color: '#fff',
+            fontWeight: 600,
+            borderRadius: 3,
+            px: 4,
+            py: 1.5,
+            fontSize: 16,
+            '&:hover': { bgcolor: '#6B857A' },
+          }}
+        >
+          投稿する
+        </Button>
+      </Box>
+    );
   }
 
   return (

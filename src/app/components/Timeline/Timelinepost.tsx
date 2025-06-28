@@ -1,10 +1,20 @@
 import React from 'react';
 import { Box, Typography, Avatar } from '@mui/material';
 
-export default function TimelinePost({ post }: { post: any }) {
+export default function TimelinePost({ post }: { 
+  post: {
+    id: string;
+    user_id: string;
+    image_path: string;
+    created_at: string;
+    profiles?: {
+      user_name: string;
+      avatar_url: string;
+    };
+  }
+}) {
   // 画像URLの生成
   const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/posts/${post.image_path}`;
-  const username = post.profiles?.user_name || 'unknown';
   
   // アバター画像URLの生成
   const avatarUrl = post.profiles?.avatar_url 

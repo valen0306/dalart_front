@@ -20,18 +20,68 @@ export default function PostPage() {
   const [photo, setPhoto] = useState<string | null>(null);
   const [cameraOn, setCameraOn] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<{
+    label: string;
+    reason: string;
+    advice: string;
+    image_url: string;
+  } | null>(null);
   const [error, setError] = useState('');
 
   // カメラ起動
   const startCamera = async () => {
     setCameraOn(true);
     setResult(null);
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    setError('');
+    
+    console.log('カメラ起動開始');
+    console.log('navigator.mediaDevices:', navigator.mediaDevices);
+    console.log('getUserMedia available:', !!navigator.mediaDevices?.getUserMedia);
+    
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setError('お使いのブラウザはカメラ機能をサポートしていません');
+        setCameraOn(false);
+        return;
+      }
+
+      // 利用可能なカメラを確認
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(device => device.kind === 'videoinput');
+      console.log('利用可能なカメラ:', videoDevices);
+
+      // カメラ権限を明示的に要求
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: {
+          facingMode: 'environment', // 背面カメラを優先
+          width: { ideal: 1920 },
+          height: { ideal: 1080 }
+        } 
+      });
+      
+      console.log('カメラストリーム取得成功:', stream);
+      
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play();
+        await videoRef.current.play();
+        console.log('ビデオ再生開始');
+      }
+    } catch (error) {
+      console.error('カメラ起動エラー:', error);
+      setCameraOn(false);
+      
+      if (error instanceof Error) {
+        if (error.name === 'NotAllowedError') {
+          setError('カメラの使用が許可されていません。ブラウザの設定でカメラ権限を許可してください。');
+        } else if (error.name === 'NotFoundError') {
+          setError('カメラが見つかりません。デバイスにカメラが接続されているか確認してください。');
+        } else if (error.name === 'NotReadableError') {
+          setError('カメラが他のアプリケーションで使用中です。他のアプリを閉じてから再試行してください。');
+        } else {
+          setError('カメラの起動に失敗しました: ' + error.message);
+        }
+      } else {
+        setError('カメラの起動に失敗しました');
       }
     }
   };
@@ -113,7 +163,7 @@ export default function PostPage() {
 
       // 4. レスポンスをそのままセット
       setResult(data);
-    } catch (e) {
+    } catch {
       setError('判定に失敗しました');
     } finally {
       setLoading(false);
@@ -312,11 +362,6 @@ export default function PostPage() {
             result={result}
             photo={photo || ''}
             onRetake={retake}
-            onPost={() => {
-              // 投稿処理
-              setPhoto(null);
-              setResult(null);
-            }}
           />
         </Box>
         <Footer />
