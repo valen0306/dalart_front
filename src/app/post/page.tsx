@@ -240,7 +240,7 @@ export default function PostPage() {
               mb: 3,
             }}
           >
-            <img src={photo} alt="撮影画像" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            {photo && <img src={photo} alt="撮影画像" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
           </Box>
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mb: 2 }}>
             <Button
@@ -291,8 +291,26 @@ export default function PostPage() {
       <>
         <Header/>
         <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#FFFCF7', textAlign: 'center', pb: 8 }}>
+        <Box
+            sx={{
+              mx: 'auto',
+              width: 220,
+              height: 260,
+              borderRadius: 5,
+              border: '7px solid #8CA19B',
+              bgcolor: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+              mb: 3,
+            }}
+          >
+            {photo && <img src={photo} alt="撮影画像" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+          </Box>
           <JudgeResult
             result={result}
+            photo={photo || ''}
             onRetake={retake}
             onPost={() => {
               // 投稿処理
