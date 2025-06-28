@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Box, Button, Avatar, Typography } from '@mui/material';
 import { createClient } from '@supabase/supabase-js';
 import Footer from '../components/BottomNavigationBar';
@@ -14,7 +14,38 @@ const supabase = createClient(
 export default function ProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 初期表示時にプロフィール情報を取得
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          alert('ログインしてください');
+          return;
+        }
+
+        // プロフィール情報を取得
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('avatar_url')
+          .eq('id', user.id)
+          .single();
+
+        if (profile?.avatar_url) {
+          setAvatarUrl(profile.avatar_url);
+        }
+      } catch (error) {
+        console.error('プロフィール取得エラー:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   // 画像選択→アップロード
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,28 +110,41 @@ export default function ProfilePage() {
     boxSizing: 'border-box', // パディング込みで幅を計算  
     }}>
       <Typography variant="h5" sx={{ mb: 2 }}>プロフィール画像を変更</Typography>
-      <Avatar
-        src={avatarUrl || '/ホームアイコン.svg'}
-        sx={{ width: 120, height: 120, mx: 'auto', mb: 2 }}
-      />
-      <input
-        type="file"
-        accept="image/*"
-        ref={fileInputRef}
-        style={{ display: 'none' }}
-        onChange={handleFileChange}
-      />
-      <Button
-        variant="contained"
-        onClick={() => fileInputRef.current?.click()}
-        disabled={uploading}
-      >
-        {uploading ? 'アップロード中...' : '画像を選択'}
-      </Button>
+      
+      {loading ? (
+        <Typography>読み込み中...</Typography>
+      ) : (
+        <>
+          <Avatar
+            src={avatarUrl || '/ホームアイコン.svg'}
+            sx={{ width: 120, height: 120, mx: 'auto', mb: 2 }}
+          />
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            style={{ display: 'none' }}
+            onChange={handleFileChange}
+          />
+          <Button
+            variant="contained"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            sx={{ 
+              mb: 2,
+              bgcolor: '#8CA19B',
+              color: '#fff',
+              '&:hover': { bgcolor: '#6B857A' },
+              '&:disabled': { bgcolor: '#ccc' }
+            }}
+          >
+            {uploading ? 'アップロード中...' : '画像を選択'}
+          </Button>
+        </>
+      )}
+      
       <Footer />
     </Box>
     </div>
-    
-    
   );
 }
