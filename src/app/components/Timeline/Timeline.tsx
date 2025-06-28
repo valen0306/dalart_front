@@ -46,7 +46,28 @@ export default function Timeline() {
 
   useEffect(() => {
     fetchPosts();
-    // eslint-disable-next-line
+    
+    // リアルタイム更新のためのsubscription
+    const channel = supabase
+      .channel('timeline-updates')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'posts' }, 
+        () => {
+          fetchPosts();
+        }
+      )
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'profiles' }, 
+        () => {
+          fetchPosts();
+        }
+      )
+      .subscribe();
+
+    // クリーンアップ
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const handleLoadMore = () => {
@@ -81,12 +102,22 @@ export default function Timeline() {
     }
   };
 
+  // 手動更新用の関数（外部から呼び出し可能）
+  const refreshTimeline = () => {
+    fetchPosts();
+  };
+
+  // グローバルに公開（他のコンポーネントから呼び出し可能）
+  if (typeof window !== 'undefined') {
+    (window as any).refreshTimeline = refreshTimeline;
+  }
+
   if (!posts || posts.length === 0) {
     return <Box sx={{ textAlign: 'center', mt: 4 }}>投稿がありません</Box>;
   }
 
   return (
-    <Box sx={{ maxWidth: 400, mx: 'auto', mt: 4 }}>
+    <Box sx={{ maxWidth: 400, mx: 'auto', my: '3rem' }}>
       {/* ストーリー風アイコンSwiper */}
       <Swiper
         onSlideChange={(swiper) => handleSlideChange(swiper.activeIndex)}
@@ -98,14 +129,32 @@ export default function Timeline() {
         initialSlide={activeIndex}
         style={{ marginBottom: 16 }}
       >
-        {latestPostsByUser.map((post, idx) => (
-          <SwiperSlide key={post.user_id}>
-            <Box sx={{ textAlign: 'center', opacity: idx === activeIndex ? 1 : 0.5 }}>
-              <Avatar src="/ホームアイコン.svg" sx={{ width: 56, height: 56, mx: 'auto', border: '3px solid #E0D9C7' }} />
-              <Typography sx={{ fontSize: 13, mt: 1 }}>{post.profiles?.user_name || 'unknown'}</Typography>
-            </Box>
-          </SwiperSlide>
-        ))}
+        {latestPostsByUser.map((post, idx) => {
+          // アバター画像URLの生成
+          const avatarUrl = post.profiles?.avatar_url 
+            ? post.profiles.avatar_url.startsWith('http') 
+              ? post.profiles.avatar_url 
+              : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/user/${post.profiles.avatar_url}`
+            : '/ホームアイコン.svg';
+
+          return (
+            <SwiperSlide key={post.user_id}>
+              <Box sx={{ textAlign: 'center', opacity: idx === activeIndex ? 1 : 0.5 }}>
+                <Avatar 
+                  src={avatarUrl} 
+                  sx={{ 
+                    width: 80, 
+                    height: 80, 
+                    mx: 'auto', 
+                    border: '3px solid #E0D9C7',
+                    cursor: 'pointer'
+                  }} 
+                />
+                <Typography sx={{ fontSize: 13, mt: 1 }}>{post.profiles?.user_name || 'unknown'}</Typography>
+              </Box>
+            </SwiperSlide>
+          );
+        })}
       </Swiper>
       {/* 投稿表示Swiper */}
       <Swiper
@@ -116,8 +165,8 @@ export default function Timeline() {
         initialSlide={activeIndex}
         style={{
           borderRadius: 20,
-          background: '#FFFCF7',
-          boxShadow: '0 2px 8px #ccc',
+          background: 'transparent',
+          boxShadow: 'none',
           padding: '24px 0'
         }}
       >

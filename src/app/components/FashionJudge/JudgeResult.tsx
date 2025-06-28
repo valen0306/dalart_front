@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Box, Button, Typography } from '@mui/material';
-import ArrowDown from './ArrowDown';
 import { createClient } from '@supabase/supabase-js';
 
 type JudgeResultProps = {
@@ -12,6 +11,7 @@ type JudgeResultProps = {
     advice: string;
     image_url: string;
   };
+  photo: string;
   onRetake: () => void;
   onPost: () => void;
 };
@@ -21,11 +21,12 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-export default function JudgeResult({ result, onRetake, onPost }: JudgeResultProps) {
+export default function JudgeResult({ result, photo, onRetake, onPost }: JudgeResultProps) {
   const isDarui = result.label === 'ダル着';
 
   const handlePost = async () => {
-    if (!result?.image_url) return;
+    console.log("handlePost");
+    
     try {
       // 1. ユーザー情報取得
       const user = (await supabase.auth.getUser()).data.user;
@@ -34,9 +35,9 @@ export default function JudgeResult({ result, onRetake, onPost }: JudgeResultPro
 
       // 2. 画像をStorageにアップロード（dataURL→Blob変換）
       const fileName = `${user.id}_${Date.now()}.png`;
-      console.log(fileName);//debug
-      const imageBlob = await (await fetch(result.image_url)).blob();
-      console.log(imageBlob);//debug
+      console.log("fileName",fileName);//debug
+      const imageBlob = await (await fetch(photo)).blob();
+      console.log("imageBlob",imageBlob);//debug
       const { error: uploadError } = await supabase.storage
         .from('posts')
         .upload(fileName, imageBlob, { contentType: 'image/png' });
@@ -64,31 +65,14 @@ export default function JudgeResult({ result, onRetake, onPost }: JudgeResultPro
 
   return (
     <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#FFFCF7', textAlign: 'center' }}>
-      <Typography sx={{ fontFamily: 'Chewy, sans-serif', color: '#544739', fontSize: 28, mt: 2, mb: 1 }}>
+      {/* <Typography sx={{ fontFamily: 'Chewy, sans-serif', color: '#544739', fontSize: 28, mt: 2, mb: 3 }}>
         DaLert
-      </Typography>
+      </Typography> */}
+      
       <Box
         sx={{
           mx: 'auto',
-          width: 220,
-          height: 260,
-          borderRadius: 5,
-          border: '7px solid #8CA19B',
-          bgcolor: '#fff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-          mb: 2,
-        }}
-      >
-        <img src={result.image_url} alt="判定画像" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-      </Box>
-      <ArrowDown />
-      <Box
-        sx={{
-          mx: 'auto',
-          mt: 2,
+          mt: 4,
           mb: 2,
           width: 260,
           border: '3px solid #888',
@@ -103,7 +87,7 @@ export default function JudgeResult({ result, onRetake, onPost }: JudgeResultPro
           {isDarui ? 'ダル着' : '合格！！'}
         </Typography>
       </Box>
-      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mt: 2 }}>
+      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mt: 4 }}>
         <Button
           onClick={onRetake}
           variant="outlined"
