@@ -86,6 +86,35 @@ export default function JudgeResult({ result, photo, onRetake }: JudgeResultProp
           {isDarui ? 'ダル着' : '合格！！'}
         </Typography>
       </Box>
+
+      {/* 理由とアドバイスを表示 */}
+      <Box
+        sx={{
+          mx: 'auto',
+          mb: 3,
+          width: 320,
+          border: '2px solid #8CA19B',
+          borderRadius: 2,
+          bgcolor: '#F8F9FA',
+          p: 3,
+          textAlign: 'left',
+        }}
+      >
+        <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#544739', mb: 2 }}>
+          {isDarui ? '判定理由' : '合格ポイント'}
+        </Typography>
+        <Typography sx={{ fontSize: 14, color: '#544739', mb: 3, lineHeight: 1.6 }}>
+          {result.reason}
+        </Typography>
+        
+        <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#544739', mb: 2 }}>
+          アドバイス
+        </Typography>
+        <Typography sx={{ fontSize: 14, color: '#544739', lineHeight: 1.6 }}>
+          {result.advice}
+        </Typography>
+      </Box>
+
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mt: 4 }}>
         <Button
           onClick={onRetake}
