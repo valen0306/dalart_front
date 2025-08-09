@@ -11,7 +11,7 @@ export default function LabeledInput({ label, ...props }: Props) {
       </Typography>
       <TextField
         fullWidth
-        variant="filled"
+        variant="outlined"
         InputProps={{
           disableUnderline: true,
           sx: { bgcolor: '#DDD8D1', borderRadius: 2, fontSize: 16, px: 1.5, py: 0.5 },
